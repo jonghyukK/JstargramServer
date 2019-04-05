@@ -19,11 +19,15 @@ router.get('/validateEmail/:email', function(req, res, next){
     .then( result => {
         if ( result != null ){
             const obj = {
+                resCode : "444",
+                resMsg  : "already exist Email",
                 isValidate : "N"
             }
             res.json(obj);
         } else {
             const obj = {
+                resCode : "200",
+                resMsg  : "validate email",
                 isValidate : "Y"
             }
             res.json(obj);
@@ -62,7 +66,7 @@ router.post("/sign_up", function(req, res, next){
         } else {
             const obj = { 
                 resCode : "444",
-                resMsg  : "Fail SignUp"
+                resMsg  : "Failed SignUp"
             }
             res.json(obj)
         }
@@ -70,7 +74,7 @@ router.post("/sign_up", function(req, res, next){
     .catch( err => {
         console.log(err)
         const obj = {
-            resCode : "445",
+            resCode : "444",
             resMsg  : "Email validation Error"
         }
         res.json(obj);
@@ -83,7 +87,6 @@ router.post("/sign_up", function(req, res, next){
 router.post("/login", function(req, res, next){
     let body = req.body;
 
-    // test
     models.user.findOne({
         where: {email: body.email}
     })
@@ -98,14 +101,13 @@ router.post("/login", function(req, res, next){
             console.log("비밀번호 일치");
             const obj = {
                 resCode : "200",
-                resMsg  : "Success Login",
-                body    : result
+                resMsg  : "Success Login"
             }
             res.json(obj);
         } else {
             console.log("비밀번호 불일치");
             const obj = {
-                resCode : "500",
+                resCode : "444",
                 resMsg  : "Failed Login"
             }
             res.json(obj);
