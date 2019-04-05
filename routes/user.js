@@ -83,6 +83,7 @@ router.post("/sign_up", function(req, res, next){
 router.post("/login", function(req, res, next){
     let body = req.body;
 
+    // test
     models.user.findOne({
         where: {email: body.email}
     })
