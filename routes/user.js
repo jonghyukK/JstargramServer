@@ -38,6 +38,78 @@ router.get('/validateEmail/:email', function(req, res, next){
     });
 });
 
+
+
+/****************************************************************************
+ * 
+ *  유저 정보 Select ( by Email )
+ * 
+ ***************************************************************************/
+router.get('/getUser/:email', function(req, res, next) {
+    let reqEmail = req.params.email;
+
+    models.user.findOne({
+        where: {email: reqEmail}
+    })
+    .then( result => {
+        if ( result != null){
+            const obj = {
+                resCode : "200",
+                resMsg  : "Success Query",
+                email : result.email,
+                name  : result.name,
+                introduce : result.introduce,
+                profile_img : result.profile_img,
+                contents_cnt : result.contents_cnt,
+                follower_cnt : result.follower_cnt,
+                following_cnt : result.following_cnt
+            }
+            res.json(obj);
+        }
+    })
+    .catch( err => {
+        console.log(err);
+    });
+});
+
+
+/****************************************************************************
+ * 
+ *  유저 정보 업데이트 API.
+ * 
+ ***************************************************************************/
+router.put('/updateUser/:email', function(req, res, next){
+    try {
+        let reqEmail = req.params.email;
+        let body = req.body;
+        let params = {
+            name: body.name,
+            introduce: body.introduce,
+            profile_img: body.profile_img
+        };
+
+        models.user.update(params, {
+            where: {email: reqEmail}
+        })
+        .then( result => { 
+            if(result == 1) {
+                models.user.findByPk(reqEmail)
+                    .then(user => {
+                        console.log(user.dataValues);
+                        res.json(user.dataValues);
+                    });
+            }
+        })
+        .catch( err => {
+            console.log("User Update Failed");
+        });
+    } catch(e) {
+        console.log(e);
+    }
+});
+
+
+
 /****************************************************************************
  * 
  *  유저 등록 API 

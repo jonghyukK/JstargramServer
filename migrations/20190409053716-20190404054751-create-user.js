@@ -27,6 +27,24 @@ module.exports = {
       salt: {
         type: Sequelize.STRING
       },
+    introduce: {
+      type: Sequelize.STRING
+    },
+    profile_img: {
+      type: Sequelize.STRING
+    },
+    contents_cnt: {
+      type: Sequelize.INTEGER,
+      defaultValue: 0
+    },
+    follower_cnt: {
+      type: Sequelize.INTEGER,
+      defaultValue: 0
+    },
+    following_cnt: {
+      type: Sequelize.INTEGER,
+      defaultValue: 0
+    },
       createdAt: {
         allowNull: false,
         type: Sequelize.DATE
