@@ -56,6 +56,7 @@ router.post('/create/:writer', upload.single("image"), function(req, res, next){
         .then(result => {
             fs.readFile(result.file_path, function(error, data){
                 console.log(data);
+            
             })
         })
     })
@@ -88,10 +89,42 @@ router.get("/getFile", function(req, res){
             res.send('Success"')
         })
     })
-
-   
-
 })
+
+
+router.post('/create2', upload.single("image"), function(req, res){
+
+    try {
+        console.log(req.file)
+        console.log(req.body.desc)
+        console.log(__dirname + '..')
+
+        models.upload_images.create({
+            size : req.file.size,
+            writer: req.body.desc,
+            file_path: fs.readFileSync('/Users/mac/JstargramServer/upload/' + req.file.filename)
+        }).then ( images => {
+            try {
+                fs.writeFileSync('/Users/mac/JstargramServer/tmp/' + images.filename, images.data)
+
+                console.log("##############################")
+            
+                console.log(images.filename)
+                console.log(images.data)
+            } catch (e){
+                console.log(e)
+                // res.json({'err': e});
+            }
+        })
+    } catch (e) {
+        console.log(e)
+    }
+ 
+
+    
+})
+
+
 
 
 
