@@ -191,7 +191,11 @@ router.post("/login", function(req, res, next){
     })
     .catch( err => {
         console.log(err);
-        res.json(err);
+        const obj = {
+            resCode : "444",
+            resMsg  : "UnRegisted Email."
+        }
+        res.json(obj);
     });
 });
 
