@@ -9,7 +9,7 @@ module.exports = {
         type: Sequelize.INTEGER
       },
       file_path: {
-        type: Sequelize.BLOB('long'),
+        type: Sequelize.STRING,
         allowNull: false
       },
       size: {

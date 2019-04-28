@@ -3,76 +3,78 @@ var models = require('../models');
 var fs = require('fs');
 var router = express.Router();
 
-var multer = require("multer");
+var multer = require('multer');
 
 let storage = multer.diskStorage({
-    destination: function(req, file, callback){
-        callback(null, "upload/")
-    },
-    filename: function(req, file, callback){
-        callback(null, file.originalname + "-" + Date.now())
-    }
+	destination: function(req, file, callback) {
+		callback(null, 'upload/');
+	},
+	filename: function(req, file, callback) {
+		callback(null, file.originalname + '-' + Date.now());
+	},
 });
 
 let upload = multer({
-    storage: storage
-})
+	storage: storage,
+});
 
 
 /******************************************************************************
- * 
+ *
  *   Image File Upload API.
- * 
+ *
  *****************************************************************************/
-router.post('/create/:writer', upload.single("image"), function(req, res, next){
-    console.log("post")
-    console.log(req.file)
-    console.log(req.file.path)
-    console.log(upload)
-    console.log(upload.storage.getFilename)
+router.post('/create/:writer', upload.single('image'), function(req, res, next) {
+	console.log('post');
+	console.log(req.file);
+	console.log(req.file.path);
+	console.log(upload);
+	console.log(upload.storage.getFilename);
 
-    let file = req.file;
-    let writer = req.params.writer;
+	let file = req.file;
+	let writer = req.params.writer;
 
-    console.log(writer);
+	console.log(writer);
 
-    try {
-    models.upload_images.create({
-        file_path: req.file.path,
-        size : req.file.size,
-        writer: writer
-    })
-    .then(result => {
-        let obj = {
-            message : "Success Upload Images",
-            path : file.path
-        }
-        console.log(obj);
-        res.json(obj);
+	try {
+		models.upload_images
+			.create({
+				file_path: req.file.path,
+				size: req.file.size,
+				writer: writer,
+			})
+			.then(result => {
+				let obj = {
+					message: 'Success Upload Images',
+					path: file.path,
+				};
+				console.log(obj);
+				res.json(obj);
 
-        models.upload_images.findOne({
-            where: {writer: "saz300@naver.com"}
-        })
-        .then(result => {
-            fs.readFile(result.file_path, function(error, data){
-                console.log(data);
-            
-            })
-        })
-    })
-    .catch( err => {
-        console.log(err);
-        let obj = {
-            message: "Failed Upload Images",
-            path : "null"
-        }
-        res.json(obj);
-    })
-} catch (e){
-    console.log(e);
-}
+				models.upload_images
+					.findOne({
+						where: { writer: 'saz300@naver.com' },
+					})
+					.then(result => {
+						fs.readFile(result.file_path, function(error, data) {
+							console.log(data);
+						});
+					});
+			})
+			.catch(err => {
+				console.log(err);
+				let obj = {
+					message: 'Failed Upload Images',
+					path: 'null',
+				};
+				res.json(obj);
+			});
+	} catch (e) {
+		console.log(e);
+	}
 });
 
+<<<<<<< HEAD
 
 
 router.get("/getFile", function(req, res){
@@ -128,4 +130,6 @@ router.post('/create2', upload.single("image"), function(req, res){
 
 
 
+=======
+>>>>>>> 0eb09cfab638ea92eddaf76676035a5517064006
 module.exports = router;
