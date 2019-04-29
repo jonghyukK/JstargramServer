@@ -2,15 +2,15 @@ const express = require('express');
 const router = express.Router();
 const models = require('../models');
 const crypto = require('crypto');
-const upload_images = require('../models/upload_images');
+const fs = require('fs');
 
 const multer = require('multer');
 
 let storage = multer.diskStorage({
-	destination: function(req, file, callback) {
-		callback(null, 'upload/');
+	destination: function (req, file, callback) {
+		callback(null, 'profile_images/');
 	},
-	filename: function(req, file, callback) {
+	filename: function (req, file, callback) {
 		callback(null, file.originalname + '-' + Date.now());
 	},
 });
@@ -24,12 +24,12 @@ let upload = multer({
  *   이메일 등록시, 이메일 유효성 Check.
  *
  ***************************************************************************/
-router.get('/validateEmail/:email', function(req, res, next) {
+router.get('/validateEmail/:email', function (req, res, next) {
 	let reqEmail = req.params.email;
 
 	models.user.findOne({
-			where: { email: reqEmail },
-		})
+		where: { email: reqEmail },
+	})
 		.then(result => {
 			if (result != null) {
 				const obj = {
@@ -58,12 +58,12 @@ router.get('/validateEmail/:email', function(req, res, next) {
  *  유저 정보 Select ( by Email )
  *
  ***************************************************************************/
-router.get('/getUser/:email', function(req, res, next) {
+router.get('/getUser/:email', function (req, res, next) {
 	let reqEmail = req.params.email;
 
 	models.user.findOne({
-			where: { email: reqEmail },
-		})
+		where: { email: reqEmail },
+	})
 		.then(result => {
 			if (result != null) {
 				const obj = {
@@ -79,12 +79,12 @@ router.get('/getUser/:email', function(req, res, next) {
 				};
 				res.json(obj);
 			} else {
-                const obj = {
-                    resCode : '444',
-                    resMsg  : 'not exist Users'
-                };
-                res.json(obj);
-            }
+				const obj = {
+					resCode: '444',
+					resMsg: 'not exist Users'
+				};
+				res.json(obj);
+			}
 		})
 		.catch(err => {
 			console.log(err);
@@ -98,21 +98,21 @@ router.get('/getUser/:email', function(req, res, next) {
  *
  ***************************************************************************/
 // Update User (profile (x))
-router.put('/updateUser/:email', function(req, res, next) {
+router.put('/updateUser/:email', function (req, res, next) {
 	try {
 		let reqEmail = req.params.email;
-		let params   = {
-			name        : req.body.name,
-			introduce   : req.body.introduce,
-			profile_img : req.body.profile_img,
+		let params = {
+			name: req.body.name,
+			introduce: req.body.introduce,
+			profile_img: req.body.profile_img,
 		};
 
 		models.user.update(params, {
-				where: { email: reqEmail },
-			})
+			where: { email: reqEmail },
+		})
 			.then(result => {
 				if (result == 1) {
-                    models.user.findByPk(reqEmail).then(user => {
+					models.user.findByPk(reqEmail).then(user => {
 						console.log(user.dataValues);
 						res.json(user.dataValues);
 					});
@@ -127,34 +127,37 @@ router.put('/updateUser/:email', function(req, res, next) {
 });
 
 // Update User (profile (o))
-router.post('/updateUser', upload.single('image'), function(req, res) {
+router.post('/updateUser', upload.single('image'), function (req, res) {
 	try {
-		models.upload_images.create({
-				file_path : req.file.path,
-				size      : req.file.size,
-				writer    : req.body.email,
-			})
-			.then(result => {
-				let params = {
-					name       : req.body.name,
-					introduce  : req.body.introduce,
-					profile_img: result.file_path,
-				};
+		let email  = req.body.email;			// email
+		let params = {
+			name        : req.body.name,		// name
+			introduce   : req.body.introduce,   // introduce
+			profile_img : req.file.path			// profile images
+		}
 
-				models.user.update(params, {
-						where: { email: req.body.email },
-					})
-					.then(result => {
+		models.user.findOne({ where: { email: email } })
+			.then(result => {
+				try {
+					// profile이 있으면 기존 파일 삭제 후 생성.
+					if (result.dataValues.profile_img != null) {
+						fs.unlinkSync('/Users/mac/JstargramServer/' + result.dataValues.profile_img);
+						console.log('Successfully deleted File')
+					}
+
+					models.user.update(params, {
+						where: { email: email }
+					}).then(result => {
 						if (result == 1) {
-							models.user.findByPk(req.body.email).then(user => {
+							models.user.findByPk(email).then(user => {
 								console.log(user.dataValues);
 								res.json(user.dataValues);
 							});
 						}
 					});
-			})
-			.catch(err => {
-				console.log('User Update Failed');
+				} catch (err) {
+					console.log(err);
+				}
 			});
 	} catch (e) {
 		console.log(e);
@@ -166,7 +169,7 @@ router.post('/updateUser', upload.single('image'), function(req, res) {
  *  유저 등록 API
  *
  ***************************************************************************/
-router.post('/sign_up', function(req, res, next) {
+router.post('/sign_up', function (req, res, next) {
 	let body = req.body;
 
 	let inputPassword = body.password;
@@ -213,12 +216,12 @@ router.post('/sign_up', function(req, res, next) {
  *  로그인 API.
  *
  ***************************************************************************/
-router.post('/login', function(req, res, next) {
+router.post('/login', function (req, res, next) {
 	let body = req.body;
 
 	models.user.findOne({
-			where: { email: body.email },
-		})
+		where: { email: body.email },
+	})
 		.then(result => {
 			let dbPassword = result.dataValues.password;
 
