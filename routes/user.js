@@ -27,22 +27,18 @@ let upload = multer({
 router.get('/validateEmail/:email', function (req, res, next) {
 	let reqEmail = req.params.email;
 
-	models.user.findOne({
-		where: { email: reqEmail },
-	})
+	models.user.findOne({where: { email: reqEmail }})
 		.then(result => {
 			if (result != null) {
 				const obj = {
 					resCode: '444',
-					resMsg: 'already exist Email',
-					isValidate: 'N',
+					resMsg: 'already exist Email'
 				};
 				res.json(obj);
 			} else {
 				const obj = {
 					resCode: '200',
-					resMsg: 'validate email',
-					isValidate: 'Y',
+					resMsg: 'validate email'
 				};
 				res.json(obj);
 			}
@@ -145,13 +141,22 @@ router.post('/updateUser', upload.single('image'), function (req, res) {
 						console.log('Successfully deleted File')
 					}
 
+					// User Update.
 					models.user.update(params, {
 						where: { email: email }
 					}).then(result => {
 						if (result == 1) {
-							models.user.findByPk(email).then(user => {
-								console.log(user.dataValues);
-								res.json(user.dataValues);
+							// content Profile Update.
+							models.contents.update( {writer_profile: req.file.path }, { 
+								where: { writer: email } 
+							}).then(result => {
+								models.user.findByPk(email).then(user => {
+									console.log(user.dataValues);
+									res.json(user.dataValues);
+								});
+							})
+							.catch(err => {
+								console.log(err);
 							});
 						}
 					});
@@ -190,13 +195,13 @@ router.post('/sign_up', function (req, res, next) {
 			if (result.email != null) {
 				const obj = {
 					resCode: '200',
-					resMsg: 'Success SignUp',
+					resMsg: 'Success SignUp'
 				};
 				res.json(obj);
 			} else {
 				const obj = {
 					resCode: '444',
-					resMsg: 'Failed SignUp',
+					resMsg: 'Failed SignUp'
 				};
 				res.json(obj);
 			}
@@ -205,7 +210,7 @@ router.post('/sign_up', function (req, res, next) {
 			console.log(err);
 			const obj = {
 				resCode: '444',
-				resMsg: 'Email validation Error',
+				resMsg: 'Email validation Error'
 			};
 			res.json(obj);
 		});

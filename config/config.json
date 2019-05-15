@@ -4,7 +4,13 @@
     "password": "akakfls",
     "database": "jstardb",
     "host": "127.0.0.1",
-    "dialect": "mysql"
+    "dialect": "mysql",
+    "timezone": "+09:00",
+    "dialectOptions": {
+      "useUTC"      : false, 
+      "dateStrings" : true,
+      "typeCast"    : true
+    }
   },
   "test": {
     "username": "root",
